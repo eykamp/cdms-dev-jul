@@ -63,6 +63,7 @@ mod_de.controller('DataEntryDatasheetCtrl', ['$scope','$routeParams','DataServic
 		$scope.datasetLocations = [[]];	
 		$scope.datasetLocationType=0;		
 		$scope.primaryProjectLocation = 0;
+		$scope.primaryDatasetLocation = 0;		
 		$scope.sortedLocations = [];
         
 		//datasheet grid definition
@@ -87,31 +88,75 @@ mod_de.controller('DataEntryDatasheetCtrl', ['$scope','$routeParams','DataServic
         $scope.$watch('project.Name', function(){
         	if(!$scope.project) return;
 
-        	//console.dir($scope.project);
+			console.log("Inside project.Name watcher...");
+			console.log("$scope is next...");
+        	console.dir($scope);
 			//$scope.locationOptions = $rootScope.locationOptions = makeObjects(getUnMatchingByField($scope.project.Locations,PRIMARY_PROJECT_LOCATION_TYPEID,"LocationTypeId"), 'Id','Label') ; // Original line
 
 			$scope.datasetLocationType = DatastoreService.getDatasetLocationType($scope.DatastoreTablePrefix);
-			console.log("LocationType = " + $scope.datasetLocationType);			
+			console.log("LocationType = " + $scope.datasetLocationType);
+			console.log("$scope.row is next...");
+			console.dir($scope.row);
 
 			console.log("ProjectLocations is next...");
 			console.dir($scope.project.Locations);
 			//var locInd = 0;
 			for (var i = 0; i < $scope.project.Locations.length; i++ )
 			{
-				//console.log("projectLocations Index = " + $scope.project.Locations[i].Label);
-				//console.log($scope.project.Locations[i].Id + "  " + $scope.project.Locations[i]);
+				console.log("projectLocations Index = " + $scope.project.Locations[i].Label);
+				console.log($scope.project.Locations[i].Id + "  " + $scope.project.Locations[i].LocationTypeId);
 				if ($scope.project.Locations[i].LocationTypeId === $scope.datasetLocationType)
 				{
-					//console.log("Found one");
-					$scope.datasetLocations.push([$scope.project.Locations[i].Id, $scope.project.Locations[i].Label]);
-					//console.log("datasetLocations length = " + $scope.datasetLocations.length);
-					//locInd++;
-				}
+					console.log("Found one");
+					// If the label is blank, this item is the Primary Project Location, and the label is null.
+					if ((typeof $scope.project.Locations[i].Label !== 'undefined') && ($scope.project.Locations[i].Label != null))
+					{	
+						var strLabel = $scope.project.Locations[i].Label.toLowerCase();
+						console.log("strLabel = " + strLabel);
+						var intLabelLength = strLabel.length;
+						var strHomeText = "home base";
+						console.log("strHomeText = " + strHomeText);
+						var intHomeTextLength = strHomeText.length;
+
+						// If we do indexOf on a string that is smaller than the search string, the results may be unpredictable,
+						// so let's verify the search string is bigger than the label string first.
+						if ((intLabelLength > intHomeTextLength) && (strLabel.indexOf(strHomeText) > -1))
+						{
+							console.log("Found Primary Dataset Location...");
+							$scope.primaryDatasetLocation = $scope.project.Locations[i].Id;
+							
+							// The form version uses this.
+							//$scope.row['locationId'] = $scope.primaryDatasetLocation;
+							//console.log("$scope.row is next...");
+							//console.dir($scope.row);
+
+							// The datasheet version uses this.
+							$scope.dataSheetDataset[0].locationId = $scope.primaryDatasetLocation; // The datasheet version uses this.	
+							console.log("$scope.dataSheetDataset is next...");
+							console.dir($scope.dataSheetDataset);
+						}
+						
+						$scope.datasetLocations.push([$scope.project.Locations[i].Id, $scope.project.Locations[i].Label]);
+						//console.log("datasetLocations length = " + $scope.datasetLocations.length);
+						//locInd++;
+					}
+					else
+					{
+						//$scope.primaryProjectLocation = $scope.project.Locations[i].Id;
+						//console.log("**Found a primary location.  LocId = " + $scope.primaryProjectLocation);
+					}
+				}					
 				else if ($scope.project.Locations[i].LocationTypeId === 3)
 				{
 					//$scope.datasetLocations.push([$scope.project.Locations[i].Id, $scope.project.Locations[i].Label]);  // The label is NULL, so do not add it.
 					$scope.primaryProjectLocation = $scope.project.Locations[i].Id;
-					console.log("Found a primary location.  LocId = " + $scope.primaryProjectLocation);
+					console.log("Found primary location.  LocId = " + $scope.primaryProjectLocation);
+					/*if ($scope.datasetLocationType === 104) 
+					{
+						$scope.row['locationId'] = $scope.primaryProjectLocation;
+						console.log("$scope.row is next...");
+						console.dir($scope.row);
+					}*/
 				}					
 			}
 			console.log("datasetLocations is next...");
@@ -250,7 +295,7 @@ mod_de.controller('DataEntryDatasheetCtrl', ['$scope','$routeParams','DataServic
 
 			var sheetCopy = angular.copy($scope.dataSheetDataset);
 
-            $scope.activities = ActivityParser.parseActivitySheet(sheetCopy, $scope.fields);
+            $scope.activities = ActivityParser.parseActivitySheet(sheetCopy, $scope.fields);  // Note:  The sheet version calls parseSingleActivity here.
             
             if(!$scope.activities.errors)
             {
@@ -285,6 +330,7 @@ mod_de.controller('DataEntryFormCtrl', ['$scope','$routeParams','DataService','$
 		$scope.datasetLocations = [[]];	
 		$scope.datasetLocationType=0;		
 		$scope.primaryProjectLocation = 0;
+		$scope.primaryDatasetLocation = 0;
 		$scope.sortedLocations = [];		
         
 		//datasheet grid
@@ -308,12 +354,15 @@ mod_de.controller('DataEntryFormCtrl', ['$scope','$routeParams','DataService','$
         //update our location options as soon as our project is loaded.
         $scope.$watch('project.Name', function(){
         	if(!$scope.project) return;
-        	//console.dir($scope.project);
+        	
+			console.log("Inside project.Name watcher...");
+			console.log("$scope is next...");
+			console.dir($scope);
 
 			//$scope.locationOptions = $rootScope.locationOptions = makeObjects(getUnMatchingByField($scope.project.Locations,PRIMARY_PROJECT_LOCATION_TYPEID,"LocationTypeId"), 'Id','Label') ; // Original code		
 			
 			$scope.datasetLocationType = DatastoreService.getDatasetLocationType($scope.DatastoreTablePrefix);			
-			console.log("LocationType = " + $scope.datasetLocationType);			
+			console.log("LocationType = " + $scope.datasetLocationType);
 			
 			console.log("ProjectLocations is next...");
 			if ($scope.project.Locations)
@@ -322,34 +371,61 @@ mod_de.controller('DataEntryFormCtrl', ['$scope','$routeParams','DataService','$
 			//var locInd = 0;
 			for (var i = 0; i < $scope.project.Locations.length; i++ )
 			{
-				console.log("i = " + i);
-				console.log($scope.project.Locations[i].Id + "  " + $scope.project.Locations[i].Label);
-				console.log("$scope.datasetLocationType = " + $scope.datasetLocationType + "  $scope.project.Locations[i].LocationTypeId = " + $scope.project.Locations[i].LocationTypeId);
+				//console.log("i = " + i);
+				//console.log($scope.project.Locations[i].Id + "  " + $scope.project.Locations[i].Label);
+				//console.log("$scope.datasetLocationType = " + $scope.datasetLocationType + "  $scope.project.Locations[i].LocationTypeId = " + $scope.project.Locations[i].LocationTypeId);
 				if ($scope.project.Locations[i].LocationTypeId === $scope.datasetLocationType)
 				{
 					console.log("Found one");
 					// If the label is blank, this item is the Primary Project Location, and the label is null.
 					if ((typeof $scope.project.Locations[i].Label !== 'undefined') && ($scope.project.Locations[i].Label != null))
 					{	
+						var strLabel = $scope.project.Locations[i].Label.toLowerCase();
+						console.log("strLabel = " + strLabel);
+						var intLabelLength = strLabel.length;
+						var strHomeText = "home base";
+						console.log("strHomeText = " + strHomeText);
+						var intHomeTextLength = strHomeText.length;
+
+						// If we do indexOf on a string that is smaller than the search string, the results may be unpredictable,
+						// so let's verify the search string is bigger than the label string first.
+						if ((intLabelLength > intHomeTextLength) && (strLabel.indexOf(strHomeText) > -1))
+						{
+							console.log("Found Primary Dataset Location...");
+							$scope.primaryDatasetLocation = $scope.project.Locations[i].Id;
+							
+							// The form version uses this.							
+							$scope.row['locationId'] = $scope.primaryDatasetLocation;
+							console.log("$scope.row is next...");
+							console.dir($scope.row);
+							
+							// The datasheet version uses this.
+							//$scope.dataSheetDataset[0].locationId = $scope.primaryDatasetLocation; // The datasheet version uses this.	
+							//console.log("$scope.dataSheetDataset is next...");
+							//console.dir($scope.dataSheetDataset);							
+						}
+						
 						$scope.datasetLocations.push([$scope.project.Locations[i].Id, $scope.project.Locations[i].Label]);
 						//console.log("datasetLocations length = " + $scope.datasetLocations.length);
 						//locInd++;
 					}
 					else
 					{
-						$scope.primaryProjectLocation = $scope.project.Locations[i].Id;
-						console.log("**Found a primary location.  LocId = " + $scope.primaryProjectLocation);
+						//$scope.primaryProjectLocation = $scope.project.Locations[i].Id;
+						//console.log("**Found a primary location.  LocId = " + $scope.primaryProjectLocation);
 					}
 				}
 				else if ($scope.project.Locations[i].LocationTypeId === 3)
 				{
 					//$scope.datasetLocations.push([$scope.project.Locations[i].Id, $scope.project.Locations[i].Label]);  // The label is NULL, so do not add it.
 					$scope.primaryProjectLocation = $scope.project.Locations[i].Id;
-					console.log("Found a primary location.  LocId = " + $scope.primaryProjectLocation);
+					console.log("Found primary location.  LocId = " + $scope.primaryProjectLocation);					
 				}					
 			}
 			console.log("datasetLocations is next...");
 			console.dir($scope.datasetLocations);
+			console.log("$scope.primaryProjectLocation = " + $scope.primaryProjectLocation);
+			console.log("$scope.primaryDatasetLocation = " + $scope.primaryDatasetLocation);
 			
 			// When we built the array, it started adding at location 1 for some reason, skipping 0.
 			// Therefore, row 0 is blank.  The simple solution is to just delete row 0.
@@ -683,9 +759,15 @@ mod_de.controller('DataEntryFormCtrl', ['$scope','$routeParams','DataService','$
 					//console.log("Ok our new list of files: "+$scope.row[field]);
 				});
 
-				var sheetCopy = angular.copy($scope.dataSheetDataset);		
-
-				$scope.activities = ActivityParser.parseSingleActivity($scope.row, sheetCopy, $scope.fields);
+				var sheetCopy = angular.copy($scope.dataSheetDataset);
+				console.log("sheetCopy is next...");
+				console.dir(sheetCopy);
+				
+				console.log("$scope.row is next");
+				console.dir($scope.row);
+				console.log("$scope.fields");
+				console.dir($scope.fields);
+				$scope.activities = ActivityParser.parseSingleActivity($scope.row, sheetCopy, $scope.fields); // Note:  The sheet version calls parseActivitySheet here.
 				if(!$scope.activities.errors)
 				{
 					DataService.saveActivities($scope.userId, $scope.dataset.Id, $scope.activities);
