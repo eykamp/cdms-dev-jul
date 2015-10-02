@@ -160,8 +160,8 @@ var datasetActivitiesController = ['$scope','$routeParams', 'DataService', 'Data
             //performance idea: if project-role evaluation ends up being slow, you can conditionally include here...
           	var editButtonTemplate = '<div project-role="editor" class="ngCellText" ng-class="col.colIndex()">' +
             				   '<a href="#/edit/{{row.getProperty(\'Id\')}}">Edit</a>' +
-            				   '</div>';
-
+            				   '</div>';						   
+							   
             $scope.columnDefs = [
                         {field:'ActivityDate', displayName:'Activity Date', cellTemplate: linkTemplate, width:'100px'},
 
@@ -414,10 +414,20 @@ var datasetActivitiesController = ['$scope','$routeParams', 'DataService', 'Data
             };
 
             $scope.reloadProjectLocations = function(){
-
-                $scope.locationsArray = getUnMatchingByField($scope.project.Locations,PRIMARY_PROJECT_LOCATION_TYPEID,"LocationTypeId");
-
-                $scope.locationObjectIds = getLocationObjectIdsByInverseType(PRIMARY_PROJECT_LOCATION_TYPEID,$scope.project.Locations);
+				console.log("Inside $scope.reloadProjectLocations...");
+				console.log("$scope.project.Locations is next...");
+				console.dir($scope.project.Locations);
+				
+				$scope.datasetLocationType = DatastoreService.getDatasetLocationType($scope.DatastoreTablePrefix);			
+				console.log("LocationType = " + $scope.datasetLocationType);				
+				
+                //$scope.locationsArray = getUnMatchingByField($scope.project.Locations,PRIMARY_PROJECT_LOCATION_TYPEID,"LocationTypeId");
+                $scope.locationsArray = getMatchingByField($scope.project.Locations,$scope.datasetLocationType,"LocationTypeId");
+			
+                //$scope.locationObjectIds = getLocationObjectIdsByInverseType(PRIMARY_PROJECT_LOCATION_TYPEID,$scope.project.Locations);
+                $scope.locationObjectIds = getLocationObjectIdsByInverseType($scope.datasetLocationType,$scope.project.Locations);
+				console.log("$scope.locationObjectIds is next...");
+				console.dir($scope.locationObjectIds);
 
                 if($scope.map && $scope.map.locationLayer && $scope.map.locationLayer.hasOwnProperty('showLocationsById'))
                     $scope.map.locationLayer.showLocationsById($scope.locationObjectIds); //bump and reload the locations.
@@ -434,6 +444,10 @@ var datasetActivitiesController = ['$scope','$routeParams', 'DataService', 'Data
             $scope.$watch('dataset.Fields', function() {
                 if(!$scope.dataset.Fields ) return;
                 //load our project based on the projectid we get back from the dataset
+				
+				$scope.DatastoreTablePrefix = $scope.dataset.Datastore.TablePrefix;
+				console.log("$scope.DatastoreTablePrefix = " + $scope.DatastoreTablePrefix);				
+				
                 $scope.project = DataService.getProject($scope.dataset.ProjectId);
                 $scope.QAStatusList = makeObjects($scope.dataset.QAStatuses, 'Id','Name');
 

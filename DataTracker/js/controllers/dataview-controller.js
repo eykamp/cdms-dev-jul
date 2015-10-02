@@ -75,7 +75,8 @@ mod_dv.controller('DatasetViewCtrl', ['$scope','$routeParams','DataService','$mo
 	    			ChartService.buildChart($scope, $scope.grid.Details, $scope.dataset.Datastore.TablePrefix);
 
 	    			//if we have more than 1 row qa status then show them.
-		    		if($scope.dataset.RowQAStatuses.length > 1)
+		    		//if ($scope.dataset.RowQAStatuses.length > 1)
+		    		if (($scope.dataset.Datastore.TablePrefix !== "FishScales") && ($scope.dataset.RowQAStatuses.length > 1))
 		    		{
 		    			$scope.datasheetColDefs.unshift(
 				    	{
@@ -124,6 +125,7 @@ mod_dv.controller('DatasetViewCtrl', ['$scope','$routeParams','DataService','$mo
 		    		$scope.recalculateGridWidth($scope.datasheetColDefs.length);
 				}
 				$scope.query.loading = false;
+
 
 				$scope.RowQAStatuses =  $rootScope.RowQAStatuses = makeObjects($scope.dataset.RowQAStatuses, 'Id', 'Name');  //Row qa status ids
 

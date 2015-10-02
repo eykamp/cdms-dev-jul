@@ -169,7 +169,8 @@ mod_edit.controller('DataEditCtrl', ['$scope','$q','$sce','$routeParams','DataSe
 
 					$scope.RowQAStatuses =  $rootScope.RowQAStatuses = makeObjects($scope.dataset.RowQAStatuses, 'Id', 'Name');  //Row qa status ids
 
-					if($scope.dataset.RowQAStatuses.length > 1)
+					//if($scope.dataset.RowQAStatuses.length > 1)
+		    		if (($scope.dataset.Datastore.TablePrefix !== "FishScales") && ($scope.dataset.RowQAStatuses.length > 1))						
 					{
 						$scope.datasheetColDefs.push(
 								{
