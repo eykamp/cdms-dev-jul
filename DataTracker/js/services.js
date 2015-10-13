@@ -2918,6 +2918,16 @@ function toExactISOString(a_date)
         '.' + (a_date.getMilliseconds() / 1000).toFixed(3).slice(2, 5);
 
     return s_utc;
+}
+
+
+function toTimeString(a_date)
+{
+    var t = 'T' + pad(a_date.getHours()) +
+            ':' + pad(a_date.getMinutes()) +
+            ':' + pad(a_date.getSeconds());
+
+    return t;
 
 }
 

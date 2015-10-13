@@ -652,6 +652,22 @@ mod_di.controller("DatasetImportCtrl", ['$scope','$routeParams','DatastoreServic
 										console.dir(e);
 									}
 								}
+								else if(field.ControlType == "time")
+								{
+									try
+									{
+										if(data_row[col])
+										{
+											var d = Date(data_row[col] + " PST");
+											new_row[field.DbColumnName] = toTimeString(d);
+										}
+									}
+									catch(e)
+									{
+										console.log("problem converting date: " + data_row[col]);
+										console.dir(e);
+									}
+								}
 								else //just add the value to the cell
 								{
 									//set the value
