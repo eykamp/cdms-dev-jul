@@ -91,7 +91,7 @@ mod_edit.controller('DataEditCtrl', ['$scope','$q','$sce','$routeParams','DataSe
 				$location.path("/unauthorized");
 			}			
 			
-			$scope.datasetLocationType = DatastoreService.getDatasetLocationType($scope.dataset.DatastoreId);
+			$scope.datasetLocationType = DatastoreService.getDatasetLocationType($scope.DatastoreTablePrefix);
 			console.log("LocationType = " + $scope.datasetLocationType);
 
 			for (var i = 0; i < $scope.project.Locations.length; i++ )
@@ -144,8 +144,8 @@ mod_edit.controller('DataEditCtrl', ['$scope','$q','$sce','$routeParams','DataSe
         	$scope.dataset = $scope.dataset_activities.Dataset;
         	DataService.configureDataset($scope.dataset); //bump to load config since we are pulling it directly out of the activities
 
-        	$scope.project = DataService.getProject($scope.dataset.ProjectId);
-        	$scope.QAStatusOptions = $rootScope.QAStatusOptions = makeObjects($scope.dataset.QAStatuses, 'Id','Name');
+            $scope.DatastoreTablePrefix = $scope.dataset.Datastore.TablePrefix;
+            console.log("$scope.DatastoreTablePrefix = " + $scope.DatastoreTablePrefix);
 
         	//set the header field values
         	$scope.row['ActivityId'] = $scope.dataset_activities.Header.ActivityId;
