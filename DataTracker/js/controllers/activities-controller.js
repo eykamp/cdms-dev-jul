@@ -173,6 +173,7 @@ var datasetActivitiesController = ['$scope','$routeParams', 'DataService', 'Data
                         {field:'Location.Label',displayName: 'Location', cellTemplate: locationLabelTemplate},
                         {field:'Location.WaterBody.Name',displayName: 'Waterbody', visible: false},
                         {field:'headerdata.FieldActivityType',displayName: 'Field Activity Type', visible: false, width: '120px'},
+                        {field:'headerdata.DataType',displayName: 'Data Type', visible: false, width: '120px'},
                         {field:'Description', displayName: 'Date Range', cellTemplate: desclinkTemplate, visible: false},
 
 
@@ -444,18 +445,24 @@ var datasetActivitiesController = ['$scope','$routeParams', 'DataService', 'Data
                     $scope.columnDefs[0].visible = false;
                     $scope.columnDefs[3].visible = true;
                     $scope.columnDefs[5].visible = true;
+                    $scope.columnDefs[7].visible = true;
+                    $scope.columnDefs[8].visible = true;
+                }
+                else if($scope.dataset.Datastore.Name == 'Water Quality')
+                {
+                    console.log("showing fields");
+                    $scope.columnDefs[0].visible = false;
+                    $scope.columnDefs[3].visible = true;
                     $scope.columnDefs[6].visible = true;
                     $scope.columnDefs[7].visible = true;
+                    $scope.columnDefs[8].visible = true;
                 }
-
-                if($scope.dataset.Datastore.Name == 'Appraisals')
+                else if($scope.dataset.Datastore.Name == 'Appraisals')
                 {
                     console.log("showing fields");
                     $scope.columnDefs[0].visible = false;
                     $scope.columnDefs[1].visible = true;
                     $scope.columnDefs[2].visible = true;
-
-
                 }
 
 
