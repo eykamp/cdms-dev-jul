@@ -2068,6 +2068,7 @@ function makeFieldColDef(field, scope) {
                 coldef.editableCellTemplate = makeField(field.DbColumnName, 'ex. 07/23/2014 16:20');
                 break;
             case 'textarea':
+            case 'text':
                 coldef.editableCellTemplate = '<input type="text" ng-blur="updateCell(row,\''+field.DbColumnName+'\')" ng-model="COL_FIELD" ng-input="COL_FIELD" />';
                 break;
             case 'number':
